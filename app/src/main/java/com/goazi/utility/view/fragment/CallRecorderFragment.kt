@@ -23,9 +23,9 @@ import com.goazi.utility.databinding.FragmentCallRecorderBinding
 import com.goazi.utility.misc.Constant
 import com.goazi.utility.misc.Util
 import com.goazi.utility.model.Call
-import com.goazi.utility.service.ACameraService
-import com.goazi.utility.service.CameraService
-import com.goazi.utility.service.PictureCapturingListener
+import com.goazi.utility.service.captureimage.ACameraService
+import com.goazi.utility.service.captureimage.CameraService
+import com.goazi.utility.service.captureimage.PictureCapturingListener
 import com.goazi.utility.viewmodel.CallViewModel
 
 class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.OnCallCLickListener,

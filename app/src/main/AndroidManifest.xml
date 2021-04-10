@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.CameraService" />
+        <service android:name=".service.captureimage.CameraService" />
     </application>
 
 </manifest>
