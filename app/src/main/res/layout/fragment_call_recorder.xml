@@ -10,14 +10,30 @@
         android:id="@+id/btn_call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:text="Call" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_toEndOf="@+id/btn_call"
+        android:text="End" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_call"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_below="@+id/btn_call"
         tools:listitem="@layout/call_list_item" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/img_front"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_call"
+        android:minWidth="600dp"
+        android:minHeight="800dp" />
 </RelativeLayout>

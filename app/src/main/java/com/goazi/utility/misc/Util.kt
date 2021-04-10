@@ -12,17 +12,7 @@ class Util {
         private const val TAG = "Util"
 
         fun showSnackBar(view: View, message: String) {
-            try {
-                /*Snackbar.make(
-                    view.findViewById<RelativeLayout>(R.id.fragment_call),
-                    "Had a snack at Snackbar",
-                    Snackbar.LENGTH_SHORT
-                ).show();*/
-                Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                Log.d(TAG, "showSnackBar: $e")
-            }
+            Snackbar.make(view, message, Snackbar.LENGTH_SHORT).show()
         }
-
     }
 }
