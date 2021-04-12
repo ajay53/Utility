@@ -1,8 +1,10 @@
 package com.goazi.utility.view.fragment
 
 import android.Manifest
-import android.app.Activity
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -19,27 +21,23 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.goazi.utility.R
 import com.goazi.utility.adapter.CallAdapter
+import com.goazi.utility.background.captureImage.CameraService
+import com.goazi.utility.background.deviceManager.AdminReceiver
 import com.goazi.utility.databinding.FragmentCallRecorderBinding
-import com.goazi.utility.misc.Constant
+import com.goazi.utility.misc.Constant.Companion.cameraRequestCode
 import com.goazi.utility.misc.Util
 import com.goazi.utility.model.Call
-import com.goazi.utility.service.captureimage.ACameraService
-import com.goazi.utility.service.captureimage.CameraService
-import com.goazi.utility.service.captureimage.PictureCapturingListener
 import com.goazi.utility.viewmodel.CallViewModel
 
-class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.OnCallCLickListener,
+class CallRecorderFragment : Fragment(), CallAdapter.OnCallCLickListener,
     View.OnClickListener {
     private val TAG = "CallRecorderFragment"
 
-    //    variables
     private lateinit var fragmentActivity: FragmentActivity
     private lateinit var applicationContext: Context
     private var viewBinding: FragmentCallRecorderBinding? = null
     private lateinit var viewModel: CallViewModel
     private var calls: MutableList<Call>? = null
-
-    //    widgets
     private lateinit var root: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +80,8 @@ class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.O
         viewBinding?.btnCall?.setOnClickListener(this)
         viewBinding?.btnEnd?.setOnClickListener(this)
 
-        getPermissions()
+        getManifestPermissions()
+        getSpecialPermissions()
     }
 
     private fun getCalls(): List<Call> {
@@ -116,11 +115,12 @@ class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.O
             if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED
             ) {
-                val captureImage: ACameraService = CameraService(fragmentActivity as Activity)
-                captureImage.startCapturing(this)
-                /*val intent = Intent()
+                /*val captureImage: ACameraService =
+                    CameraService(fragmentActivity as Activity, applicationContext)
+                captureImage.startCapturing(this)*/
+                val intent = Intent()
                 intent.setClass(applicationContext, CameraService::class.java)
-                applicationContext.startService(intent)*/
+                applicationContext.startService(intent)
             }
         } else if (id == R.id.btn_end) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -130,11 +130,27 @@ class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.O
         }
     }
 
-    private fun getPermissions() {
+    private fun getManifestPermissions() {
         requestPermissions(
             Array(1) { Manifest.permission.CAMERA },
-            Constant.cameraRequestCode
+            cameraRequestCode
         )
+        /*requestPermissions(
+            Array(1) {Manifest.permission.BIND_DEVICE_ADMIN },
+            Constant.adminRequestCode
+        )*/
+    }
+
+    private fun getSpecialPermissions() {
+        val cn = ComponentName(applicationContext, AdminReceiver::class.java)
+
+        val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, cn)
+        intent.putExtra(
+            DevicePolicyManager.EXTRA_ADD_EXPLANATION,
+            "For Testing"
+        )
+        startActivity(intent)
     }
 
     override fun onRequestPermissionsResult(
@@ -145,7 +161,7 @@ class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.O
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when (requestCode) {
-            Constant.cameraRequestCode -> if (grantResults.isNotEmpty()
+            cameraRequestCode -> if (grantResults.isNotEmpty()
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
             ) {
                 /*Util.showSnackBar(
@@ -164,10 +180,10 @@ class CallRecorderFragment : Fragment(), PictureCapturingListener, CallAdapter.O
         }
     }
 
-    override fun onCaptureDone(pictureData: ByteArray) {
+    /*override fun onCaptureDone(pictureData: ByteArray) {
         fragmentActivity.runOnUiThread {
             val bitmap = BitmapFactory.decodeByteArray(pictureData, 0, pictureData.size)
             viewBinding?.imgFront?.setImageBitmap(bitmap)
         }
-    }
+    }*/
 }

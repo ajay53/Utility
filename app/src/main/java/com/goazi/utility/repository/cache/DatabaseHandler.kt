@@ -1,16 +1,19 @@
-package com.goazi.utility.data.cache
+package com.goazi.utility.repository.cache
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.goazi.utility.data.cache.dao.CallDao
+import com.goazi.utility.repository.cache.dao.CallDao
+import com.goazi.utility.repository.cache.dao.UnlockDao
 import com.goazi.utility.model.Call
+import com.goazi.utility.model.Unlock
 
-@Database(entities = [Call::class], version = 1, exportSchema = false)
+@Database(entities = [Call::class, Unlock::class], version = 1, exportSchema = false)
 abstract class DatabaseHandler : RoomDatabase() {
 
     abstract fun callDao(): CallDao
+    abstract fun unlockDao(): UnlockDao
 
     companion object {
         @Volatile

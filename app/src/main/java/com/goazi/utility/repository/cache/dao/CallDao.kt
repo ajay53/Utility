@@ -1,4 +1,4 @@
-package com.goazi.utility.data.cache.dao
+package com.goazi.utility.repository.cache.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao

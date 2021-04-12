@@ -1,7 +1,11 @@
-package com.goazi.utility.service.captureimage
+package com.goazi.utility.background.captureImage
 
 import android.Manifest
 import android.app.Activity
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -16,16 +20,24 @@ import android.media.ImageReader.OnImageAvailableListener
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.IBinder
 import android.util.Log
 import android.util.Size
 import android.util.SparseIntArray
+import android.view.Display
 import android.view.Surface
+import android.view.WindowManager
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import com.goazi.utility.R
+import com.goazi.utility.misc.App.Companion.CHANNEL_ID
+import com.goazi.utility.misc.Constant.Companion.defaultNotificationId
+import com.goazi.utility.view.activity.NavigationActivity
 import com.google.android.gms.common.util.concurrent.HandlerExecutor
 import java.io.ByteArrayOutputStream
 import java.util.*
 
-class CameraService(activity: Activity) : ACameraService(activity) {
+class CameraService() : Service() {
 
     private val TAG = "CameraService"
 
@@ -38,16 +50,37 @@ class CameraService(activity: Activity) : ACameraService(activity) {
     private var cameraHandler: Handler? = null
     private val cameraClosed = false
     private lateinit var currImage: ByteArray
-    private var capturingListener: PictureCapturingListener? = null
+    private lateinit var manager: CameraManager
 
-    /*override fun onBind(intent: Intent?): IBinder? {
+
+
+    override fun onBind(intent: Intent?): IBinder? {
         return null
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        Log.d(TAG, "onCreate: ")
+
+        val notificationIntent =
+            Intent().setClass(applicationContext, NavigationActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
+
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+            .setContentTitle("Utility")
+            .setSmallIcon(R.drawable.ic_menu_camera)
+            .setContentIntent(pendingIntent)
+            .build()
+        val activity: Activity = NavigationActivity()
+        startForeground(defaultNotificationId, notification)
+
+        manager = applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startCapturing()
         return START_STICKY
-    }*/
+    }
 
     init {
         orientations.append(Surface.ROTATION_0, 90)
@@ -56,10 +89,9 @@ class CameraService(activity: Activity) : ACameraService(activity) {
         orientations.append(Surface.ROTATION_270, 180)
     }
 
-    override fun startCapturing(listener: PictureCapturingListener) {
+    private fun startCapturing() {
         try {
 //            manager = applicationContext.getSystemService(CAMERA_SERVICE) as CameraManager
-            capturingListener = listener
             val ht = HandlerThread("Camera Handler Thread")
             ht.start()
             cameraHandler = Handler(ht.looper)
@@ -88,7 +120,7 @@ class CameraService(activity: Activity) : ACameraService(activity) {
 //        Log.d(TAG, "opening camera " + currentCameraId);
         Log.d(TAG, "opening camera $frontCameraId")
         try {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+            if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED
             ) {
                 manager.openCamera(frontCameraId, stateCallback, cameraHandler)
@@ -187,7 +219,8 @@ class CameraService(activity: Activity) : ACameraService(activity) {
         captureBuilder = cameraDevice!!.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
         captureBuilder!!.addTarget(reader.surface)
         captureBuilder!!.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-        captureBuilder!![CaptureRequest.JPEG_ORIENTATION] = getOrientation()
+        captureBuilder!![CaptureRequest.JPEG_ORIENTATION] = 0
+//        captureBuilder!![CaptureRequest.JPEG_ORIENTATION] = getOrientation()
         reader.setOnImageAvailableListener(onImageAvailableListener, cameraHandler)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -250,7 +283,6 @@ class CameraService(activity: Activity) : ACameraService(activity) {
                 cameraHandler?.postDelayed({
                     super.onCaptureCompleted(session, request, result)
                     Log.d(TAG, "onCaptureCompleted: currImage: $currImage")
-                    capturingListener?.onCaptureDone(currImage)
                     closeCamera()
                 }, 500)
                 /*GlobalScope.launch { // launch a new coroutine in background and continue
@@ -302,11 +334,11 @@ class CameraService(activity: Activity) : ACameraService(activity) {
         Log.d(TAG, "onCaptureDone: currImage: $currImage")
     }
 
-    /*private fun getOrientation(): Int {
+    private fun getOrientation(): Int {
         val display: Display? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             applicationContext.display
         } else {
-            (applicationContext.getSystemService(WINDOW_SERVICE) as WindowManager).defaultDisplay
+            (applicationContext.getSystemService(Service.WINDOW_SERVICE) as WindowManager).defaultDisplay
         }
         val rotation: Int? = display?.rotation
         return if (rotation != null) {
@@ -314,7 +346,7 @@ class CameraService(activity: Activity) : ACameraService(activity) {
         } else {
             0
         }
-    }*/
+    }
 
     private fun closeCamera() {
         Log.d(TAG, "closing camera " + cameraDevice!!.id)

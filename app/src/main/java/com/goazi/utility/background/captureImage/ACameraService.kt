@@ -1,4 +1,4 @@
-package com.goazi.utility.service.captureimage
+package com.goazi.utility.background.captureImage
 
 import android.app.Activity
 import android.app.Service
@@ -10,11 +10,11 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 
-abstract class ACameraService(private val activity: Activity) {
+abstract class ACameraService(private val activity: Activity, val context: Context) {
 
-    val context: Context = activity.applicationContext
+    val ac = activity
+//    val context: Context = activity.applicationContext
     val manager: CameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
     private val orientations = SparseIntArray()
 
     init {
