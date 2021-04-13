@@ -29,9 +29,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".background.BackgroundService" />
         <service
             android:name=".background.captureImage.CameraService"
             android:foregroundServiceType="camera" />
+
         <receiver
             android:name=".background.deviceManager.AdminReceiver"
             android:permission="android.permission.BIND_DEVICE_ADMIN">

@@ -11,4 +11,5 @@
     <string name="menu_slideshow">Slideshow</string>
     <string name="menu_call_recorder">Call Recorder</string>
     <string name="call_recorder">Call Recorder</string>
+    <string name="wrong_unlock">Wrong Unlock</string>
 </resources>

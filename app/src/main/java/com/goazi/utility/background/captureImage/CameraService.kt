@@ -1,10 +1,10 @@
 package com.goazi.utility.background.captureImage
 
 import android.Manifest
-import android.app.Activity
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -30,18 +30,28 @@ import android.view.WindowManager
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.goazi.utility.R
-import com.goazi.utility.misc.App.Companion.CHANNEL_ID
-import com.goazi.utility.misc.Constant.Companion.defaultNotificationId
+import com.goazi.utility.background.BackgroundService
+import com.goazi.utility.misc.App
+import com.goazi.utility.misc.Constant.Companion.DEFAULT_CHANNEL_ID
+import com.goazi.utility.misc.Constant.Companion.DEFAULT_NOTIFICATION_ID
+import com.goazi.utility.misc.Constant.Companion.UNLOCK_DIRECTORY
+import com.goazi.utility.model.Unlock
+import com.goazi.utility.repository.cache.DatabaseHandler
+import com.goazi.utility.repository.cache.dao.UnlockDao
 import com.goazi.utility.view.activity.NavigationActivity
 import com.google.android.gms.common.util.concurrent.HandlerExecutor
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
 
-class CameraService() : Service() {
+class CameraService : Service() {
 
-    private val TAG = "CameraService"
+    companion object {
+        private const val TAG = "CameraService"
+    }
 
-    //    private var manager: CameraManager? = null
     private lateinit var frontCameraId: String
     private var isCameraClosed: Boolean = false
     private var cameraDevice: CameraDevice? = null
@@ -52,8 +62,6 @@ class CameraService() : Service() {
     private lateinit var currImage: ByteArray
     private lateinit var manager: CameraManager
 
-
-
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -62,24 +70,26 @@ class CameraService() : Service() {
         super.onCreate()
         Log.d(TAG, "onCreate: ")
 
+/*
         val notificationIntent =
             Intent().setClass(applicationContext, NavigationActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
 
-        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+        val notification = NotificationCompat.Builder(applicationContext, DEFAULT_CHANNEL_ID)
             .setContentTitle("Utility")
             .setSmallIcon(R.drawable.ic_menu_camera)
             .setContentIntent(pendingIntent)
             .build()
-        val activity: Activity = NavigationActivity()
-        startForeground(defaultNotificationId, notification)
+        startForeground(DEFAULT_NOTIFICATION_ID, notification)
+*/
 
         manager = applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand: ")
         startCapturing()
-        return START_STICKY
+        return START_NOT_STICKY
     }
 
     init {
@@ -327,11 +337,35 @@ class CameraService() : Service() {
         val stream = ByteArrayOutputStream()
         rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         currImage = stream.toByteArray()
-        //rotate bitmap_____
+        //saving bitmap_____
+        saveBitmap(rotatedBitmap)
     }
 
-    private fun onCaptureDone(currImage: ByteArray) {
-        Log.d(TAG, "onCaptureDone: currImage: $currImage")
+    private fun saveBitmap(bitmap: Bitmap) {
+        val contextWrapper = ContextWrapper(applicationContext)
+        // path to /data/data/yourapp/app_data/imageDir
+        val directory = contextWrapper.getDir(UNLOCK_DIRECTORY, MODE_PRIVATE)
+        val unixTime = System.currentTimeMillis() / 1000L
+        val file = File(directory, "$unixTime.jpg")
+
+        var fos: FileOutputStream? = null
+        try {
+            fos = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        } finally {
+            try {
+                fos!!.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+
+        //insert path in room
+        val wrongUnlockEvent = Unlock(0, file.absolutePath)
+        val unlockDao: UnlockDao = DatabaseHandler.getInstance(application)!!.unlockDao()
+        unlockDao.insert(wrongUnlockEvent)
     }
 
     private fun getOrientation(): Int {

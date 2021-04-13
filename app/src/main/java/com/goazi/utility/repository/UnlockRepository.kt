@@ -8,6 +8,6 @@ class UnlockRepository(private val unlockDao: UnlockDao) {
     val getAllUnlocks: LiveData<MutableList<Unlock>> = unlockDao.getAllUnlocks()
 
     suspend fun insert(unlock: Unlock) {
-        unlockDao.insert(unlock)
+        unlockDao.insertSuspended(unlock)
     }
 }

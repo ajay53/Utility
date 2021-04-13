@@ -1,13 +1,17 @@
 package com.goazi.utility.adapter
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.goazi.utility.R
 import com.goazi.utility.model.Unlock
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
 
 class UnlockAdapter(
     private val context: Context,
@@ -19,13 +23,24 @@ class UnlockAdapter(
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.unlock_list_item, parent, false)
 
-        return UnlockAdapter.ViewHolder(itemView, onUnlockCLickListener)
+        return ViewHolder(itemView, onUnlockCLickListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currItem = unlocks?.get(position)
+        try {
+            val f = File(currItem!!.path)
+            val bitmap = BitmapFactory.decodeStream(FileInputStream(f))
+            holder.imgUnlock.setImageBitmap(bitmap)
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+    }
 
-//        holder.imgUnlock = currItem?.name
+    fun updateList(unlocks: List<Unlock>) {
+        this.unlocks?.clear()
+        this.unlocks?.addAll(unlocks)
+        this.notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {
@@ -37,7 +52,7 @@ class UnlockAdapter(
 
     class ViewHolder(view: View, private val onUnlockCLickListener: OnUnlockCLickListener) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
-        var imgUnlock: TextView = view.findViewById(R.id.img_unlock)
+        var imgUnlock: ImageView = view.findViewById(R.id.img_unlock)
 
         init {
             view.setOnClickListener(this)

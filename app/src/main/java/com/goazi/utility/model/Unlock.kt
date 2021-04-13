@@ -1,6 +1,5 @@
 package com.goazi.utility.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -8,6 +7,5 @@ import androidx.room.PrimaryKey
 data class Unlock(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    @ColumnInfo(typeAffinity = ColumnInfo.BLOB)
-    val image: Array<Byte>
+    val path: String
 )

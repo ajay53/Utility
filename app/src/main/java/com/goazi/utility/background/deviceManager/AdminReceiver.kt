@@ -11,7 +11,9 @@ import androidx.core.app.ActivityCompat
 import com.goazi.utility.background.captureImage.CameraService
 
 class AdminReceiver : DeviceAdminReceiver() {
-    private val TAG = "AdminReceiver"
+    companion object{
+        private const val TAG = "AdminReceiver"
+    }
 
     override fun onEnabled(context: Context, intent: Intent) {
         super.onEnabled(context, intent)
@@ -29,9 +31,9 @@ class AdminReceiver : DeviceAdminReceiver() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED
         ) {
-            val intent = Intent()
+            val cameraIntent = Intent()
                 .setClass(context, CameraService::class.java)
-            context.startService(intent)
+            context.startService(cameraIntent)
         }
     }
 

@@ -9,7 +9,7 @@ import com.goazi.utility.repository.cache.dao.UnlockDao
 import com.goazi.utility.model.Call
 import com.goazi.utility.model.Unlock
 
-@Database(entities = [Call::class, Unlock::class], version = 1, exportSchema = false)
+@Database(entities = [Call::class, Unlock::class], version = 2, exportSchema = false)
 abstract class DatabaseHandler : RoomDatabase() {
 
     abstract fun callDao(): CallDao
