@@ -1,6 +1,7 @@
 package com.goazi.utility.view.fragment
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.goazi.utility.R
 import com.goazi.utility.adapter.UnlockAdapter
 import com.goazi.utility.databinding.FragmentUnlockBinding
 import com.goazi.utility.misc.Constant.Companion.CAPTURE_IMAGE
@@ -47,6 +49,8 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         savedInstanceState: Bundle?
     ): View {
         Log.d(TAG, "onCreateView: ")
+        //inflating to set related xml file(icon next to class name)
+        inflater.inflate(R.layout.fragment_unlock, container, false)
         binding = FragmentUnlockBinding.inflate(layoutInflater)
         initViews()
         return binding!!.root
@@ -86,7 +90,11 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         val calls: MutableList<Unlock> = ArrayList<Unlock>().toMutableList()
 
         for (i in 1..5) {
-            val call = Unlock(i, "/data/user/0/com.goazi.utility/app_unlock_directory/profile.jpg")
+            val call = Unlock(
+                i,
+                "/data/user/0/com.goazi.utility/app_unlock_directory/profile.jpg",
+                "time: $i"
+            )
             calls += call
         }
         return calls
@@ -94,6 +102,10 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
 
     override fun onUnlockClick(position: Int) {
         Log.d(TAG, "onUnlockClick: ")
+        val unlockIntent = Intent()
+            .setClass(applicationContext, UnlockDetailActivity::class.java)
+            .putExtra("unlockObj", viewModel.getAllUnlocks.value?.get(position))
+        fragmentActivity.startActivity(unlockIntent)
     }
 
     override fun onDestroy() {

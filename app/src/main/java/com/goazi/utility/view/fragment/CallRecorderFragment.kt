@@ -57,6 +57,8 @@ class CallRecorderFragment : Fragment(), CallAdapter.OnCallCLickListener,
         savedInstanceState: Bundle?
     ): View {
         Log.d(TAG, "onCreateView: ")
+        //inflating to set related xml file(icon next to class name)
+        inflater.inflate(R.layout.fragment_call_recorder, container, false)
         binding = FragmentCallRecorderBinding.inflate(layoutInflater)
         initViews()
         return binding!!.root

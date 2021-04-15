@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.goazi.utility.R
 import com.goazi.utility.model.Unlock
@@ -28,6 +29,7 @@ class UnlockAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currItem = unlocks?.get(position)
+        holder.tvDate.text = currItem?.date
         try {
             val f = File(currItem!!.path)
             val bitmap = BitmapFactory.decodeStream(FileInputStream(f))
@@ -53,6 +55,7 @@ class UnlockAdapter(
     class ViewHolder(view: View, private val onUnlockCLickListener: OnUnlockCLickListener) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
         var imgUnlock: ImageView = view.findViewById(R.id.img_unlock)
+        var tvDate: TextView = view.findViewById(R.id.tv_date)
 
         init {
             view.setOnClickListener(this)

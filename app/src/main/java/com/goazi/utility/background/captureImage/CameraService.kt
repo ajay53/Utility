@@ -1,7 +1,6 @@
 package com.goazi.utility.background.captureImage
 
 import android.Manifest
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.ContextWrapper
@@ -28,22 +27,17 @@ import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import com.goazi.utility.R
-import com.goazi.utility.background.BackgroundService
-import com.goazi.utility.misc.App
-import com.goazi.utility.misc.Constant.Companion.DEFAULT_CHANNEL_ID
-import com.goazi.utility.misc.Constant.Companion.DEFAULT_NOTIFICATION_ID
 import com.goazi.utility.misc.Constant.Companion.UNLOCK_DIRECTORY
 import com.goazi.utility.model.Unlock
 import com.goazi.utility.repository.cache.DatabaseHandler
 import com.goazi.utility.repository.cache.dao.UnlockDao
-import com.goazi.utility.view.activity.NavigationActivity
 import com.google.android.gms.common.util.concurrent.HandlerExecutor
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class CameraService : Service() {
@@ -69,19 +63,6 @@ class CameraService : Service() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate: ")
-
-/*
-        val notificationIntent =
-            Intent().setClass(applicationContext, NavigationActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
-
-        val notification = NotificationCompat.Builder(applicationContext, DEFAULT_CHANNEL_ID)
-            .setContentTitle("Utility")
-            .setSmallIcon(R.drawable.ic_menu_camera)
-            .setContentIntent(pendingIntent)
-            .build()
-        startForeground(DEFAULT_NOTIFICATION_ID, notification)
-*/
 
         manager = applicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
@@ -342,8 +323,8 @@ class CameraService : Service() {
     }
 
     private fun saveBitmap(bitmap: Bitmap) {
+        //saving bitmap in app data
         val contextWrapper = ContextWrapper(applicationContext)
-        // path to /data/data/yourapp/app_data/imageDir
         val directory = contextWrapper.getDir(UNLOCK_DIRECTORY, MODE_PRIVATE)
         val unixTime = System.currentTimeMillis() / 1000L
         val file = File(directory, "$unixTime.jpg")
@@ -363,7 +344,10 @@ class CameraService : Service() {
         }
 
         //insert path in room
-        val wrongUnlockEvent = Unlock(0, file.absolutePath)
+        val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+        val now: LocalDateTime = LocalDateTime.now()
+        val time: String = dtf.format(now)
+        val wrongUnlockEvent = Unlock(0, file.absolutePath, time)
         val unlockDao: UnlockDao = DatabaseHandler.getInstance(application)!!.unlockDao()
         unlockDao.insert(wrongUnlockEvent)
     }
