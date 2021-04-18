@@ -21,12 +21,17 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 
 class NavigationActivity : AppCompatActivity() {
+    companion object {
+        lateinit var preferences: SharedPreferences
+    }
 
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
+
+        preferences = this.getPreferences(Context.MODE_PRIVATE)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -61,7 +66,7 @@ class NavigationActivity : AppCompatActivity() {
     private fun setPreferences() {
         val sharedPref: SharedPreferences = this.getPreferences(Context.MODE_PRIVATE)
         val editor: SharedPreferences.Editor = sharedPref.edit()
-        editor.putString(Constant.CAPTURE_IMAGE, Constant.YES)
+        editor.putBoolean(Constant.CAPTURE_IMAGE, true)
         editor.apply()
     }
 

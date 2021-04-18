@@ -9,9 +9,11 @@ import android.os.UserHandle
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.goazi.utility.background.captureImage.CameraService
+import com.goazi.utility.misc.Constant.Companion.CAPTURE_IMAGE
+import com.goazi.utility.view.activity.NavigationActivity
 
 class AdminReceiver : DeviceAdminReceiver() {
-    companion object{
+    companion object {
         private const val TAG = "AdminReceiver"
     }
 
@@ -28,8 +30,10 @@ class AdminReceiver : DeviceAdminReceiver() {
     override fun onPasswordFailed(context: Context, intent: Intent, user: UserHandle) {
         super.onPasswordFailed(context, intent, user)
         Log.d(TAG, "onPasswordFailed: ")
+        val isCameraServiceEnabled: Boolean =
+            NavigationActivity.preferences.getBoolean(CAPTURE_IMAGE, true)
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-            == PackageManager.PERMISSION_GRANTED
+            == PackageManager.PERMISSION_GRANTED && isCameraServiceEnabled
         ) {
             val cameraIntent = Intent()
                 .setClass(context, CameraService::class.java)

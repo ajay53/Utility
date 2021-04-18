@@ -15,11 +15,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.goazi.utility.R
 import com.goazi.utility.adapter.UnlockAdapter
+import com.goazi.utility.background.BackgroundService
 import com.goazi.utility.databinding.FragmentUnlockBinding
 import com.goazi.utility.misc.Constant.Companion.CAPTURE_IMAGE
-import com.goazi.utility.misc.Constant.Companion.NO
-import com.goazi.utility.misc.Constant.Companion.YES
-import com.goazi.utility.model.Unlock
+import com.goazi.utility.view.activity.NavigationActivity
 import com.goazi.utility.viewmodel.UnlockViewModel
 
 class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
@@ -57,11 +56,12 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
     }
 
     private fun initViews() {
-        val sharedPref: SharedPreferences = fragmentActivity.getPreferences(Context.MODE_PRIVATE)
-        val editor: SharedPreferences.Editor = sharedPref.edit()
+        /*val sharedPref: SharedPreferences =
+            applicationContext.getSharedPreferences(DEFAULT, Context.MODE_PRIVATE)*/
+        val editor: SharedPreferences.Editor = NavigationActivity.preferences.edit()
         //set recycler view
         var adapter =
-            UnlockAdapter(applicationContext, getCalls(), this)
+            UnlockAdapter(applicationContext, viewModel.getAllUnlocks.value, this)
 
         viewModel.getAllUnlocks.observe(viewLifecycleOwner, { unlocks ->
             if (unlockCount == 0) {
@@ -77,27 +77,19 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         })
 
         binding?.swCaptureUnlock?.setOnCheckedChangeListener { compoundButton: CompoundButton, isChecked: Boolean ->
+            val intent = Intent()
+                .setClass(applicationContext, BackgroundService::class.java)
+
             if (isChecked) {
-                editor.putString(CAPTURE_IMAGE, YES)
+                editor.putBoolean(CAPTURE_IMAGE, true)
+                editor.apply()
+                fragmentActivity.startService(intent)
             } else {
-                editor.putString(CAPTURE_IMAGE, NO)
+                editor.putBoolean(CAPTURE_IMAGE, false)
+                editor.apply()
+                fragmentActivity.stopService(intent)
             }
-            editor.apply()
         }
-    }
-
-    private fun getCalls(): MutableList<Unlock> {
-        val calls: MutableList<Unlock> = ArrayList<Unlock>().toMutableList()
-
-        for (i in 1..5) {
-            val call = Unlock(
-                i,
-                "/data/user/0/com.goazi.utility/app_unlock_directory/profile.jpg",
-                "time: $i"
-            )
-            calls += call
-        }
-        return calls
     }
 
     override fun onUnlockClick(position: Int) {
@@ -112,6 +104,4 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         super.onDestroy()
         binding = null
     }
-
-
 }
