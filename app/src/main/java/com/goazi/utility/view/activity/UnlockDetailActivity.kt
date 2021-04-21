@@ -1,4 +1,4 @@
-package com.goazi.utility.view.fragment
+package com.goazi.utility.view.activity
 
 import android.os.Bundle
 import android.view.MenuItem

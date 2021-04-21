@@ -13,12 +13,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.goazi.utility.R
 import com.goazi.utility.adapter.UnlockAdapter
 import com.goazi.utility.background.BackgroundService
 import com.goazi.utility.databinding.FragmentUnlockBinding
 import com.goazi.utility.misc.Constant.Companion.CAPTURE_IMAGE
 import com.goazi.utility.view.activity.NavigationActivity
+import com.goazi.utility.view.activity.UnlockDetailActivity
 import com.goazi.utility.viewmodel.UnlockViewModel
 
 class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
@@ -39,7 +39,6 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         fragmentActivity = requireActivity()
         applicationContext = fragmentActivity.applicationContext
         viewModel = ViewModelProvider(this).get(UnlockViewModel::class.java)
-//        unlocks = viewModel.getAllUnlocks.value
     }
 
     override fun onCreateView(
@@ -48,8 +47,6 @@ class CaptureUnlockFragment : Fragment(), UnlockAdapter.OnUnlockCLickListener {
         savedInstanceState: Bundle?
     ): View {
         Log.d(TAG, "onCreateView: ")
-        //inflating to set related xml file(icon next to class name)
-        inflater.inflate(R.layout.fragment_unlock, container, false)
         binding = FragmentUnlockBinding.inflate(layoutInflater)
         initViews()
         return binding!!.root

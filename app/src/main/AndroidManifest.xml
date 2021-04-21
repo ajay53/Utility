@@ -3,8 +3,6 @@
     package="com.goazi.utility">
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
@@ -29,7 +27,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.fragment.UnlockDetailActivity" />
+        <activity android:name=".view.activity.UnlockDetailActivity" />
 
         <service android:name=".background.BackgroundService" />
         <service

@@ -4,7 +4,7 @@
     android:id="@+id/fragment_call"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.NavigationActivity">
+    tools:context=".view.fragment.CallRecorderFragment">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_call"
@@ -25,8 +25,8 @@
         android:id="@+id/rv_call"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_below="@+id/btn_call"
+        android:visibility="gone"
         tools:listitem="@layout/call_list_item" />
 
     <androidx.appcompat.widget.AppCompatImageView
